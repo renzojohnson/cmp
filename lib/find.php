@@ -48,21 +48,14 @@ function wpcf7_cme_loadlistas() {
 	$listdata = $tmp['lisdata'];
 	$tmppost = $tmppost + $tmp ;
 
-  $listatags = $cf7_cm['listatags'] ;
+  	$listatags = $cf7_cm['listatags'] ;
 
-  $tmppost = $tmppost + array( 'api' => $cmeapi );
+  	$tmppost = $tmppost + array( 'api' => $cmeapi );
 
 	update_option( $cme_idformxx,$tmppost );
 
 	$cf7_cm = get_option( $cme_idformxx, $cf7_cm_defaults );
-
-	var_dump ( ' ccc : ' . $cme_idformxx ) ;
-	
-	echo ( '<pre>' ) ;
-			var_dump ( $tmppost ) ;
-	echo ( '</pre>' ) ; 
-
-  cme_html_panel_listmail( $apivalid,$listdata,$cf7_cm );
+  	cme_html_panel_listmail( $apivalid,$listdata,$cf7_cm );
 
 	wp_die();
 }
@@ -324,20 +317,20 @@ function wpcf7_cme_listasasociadas( $apikey, $logfileEnabled, $idform = '',$apiv
 
 					$tmp = array( 'lisdata' => array('lists' => $list_data ));
 
-					$cme_db_log->cme_log_insert_db(4, 'List ID - Response :' , $resp  ) ;
+					$cme_db_log->cme_log_insert_db(4, 'List ID - Response :' , $resultsend  ) ;
 
 					return $tmp;
 			}
 			$resultbody = wp_remote_retrieve_body( $resultsend ); 		
 			$resp = json_decode( $resultbody, True );
 						
-			/*echo ('<pre>') ;
+		    echo ('<pre>') ;
 				var_dump ( $resp  ) ;
-			echo ('</pre>') ;	*/
+			echo ('</pre>') ;	
 
 			$tmp = array( 'lisdata' => array('lists' => $resp ) );
 
-			$cme_db_log->cme_log_insert_db(1, 'List ID - Response:' , $resp["response"]  ) ;
+			$cme_db_log->cme_log_insert_db(1, 'List ID - Response:' , $resp  ) ;
 
 			return $tmp;
 

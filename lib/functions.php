@@ -127,18 +127,18 @@ function wpcf7_cm_add_campaignmonitor($args) {
   if ( ( ! isset( $cf7_cm['listatags'] ) ) or is_null( $cf7_cm['listatags'] ) ) {
       unset( $cf7_cm['listatags'] );
       $cf7_cm = $cf7_cm + array( 'listatags' => $listatags ) ;
-      update_option( 'cf7_mch_'.$args->id(), $cf7_cm );
+      update_option( 'cf7_cm_'.$args->id(), $cf7_cm );
   }
 
   $logfileEnabled = ( isset( $cf7_cm['logfileEnabled'] ) ) ? $cf7_cm['logfileEnabled']  : 0 ;
 
   $cmeapi = ( isset( $cf7_cm['api'] )   ) ? $cf7_cm['api'] : null ;
 
-  //$tmp = wpcf7_mce_validate_api_key( $mceapi,$logfileEnabled,'cf7_mch_'.$mce_txcomodin );
+  //$tmp = wpcf7_mce_validate_api_key( $mceapi,$logfileEnabled,'cf7_cm_'.$mce_txcomodin );
 	$apivalid = ( isset( $cf7_cm['api-validation'] )   ) ? $cf7_cm['api-validation'] : null ;
 	$apivalid = 1;
 	
-	//$tmp = wpcf7_mce_listasasociadas( $mceapi,$logfileEnabled,'cf7_mch_'.$mce_txcomodin,$apivalid );
+	//$tmp = wpcf7_mce_listasasociadas( $mceapi,$logfileEnabled,'cf7_cm_'.$mce_txcomodin,$apivalid );
 	$listdata = ( isset( $cf7_cm['lisdata'] )   ) ? $cf7_cm['lisdata'] : null ;
 
 	/*echo ('<pre>') ;

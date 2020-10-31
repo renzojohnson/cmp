@@ -28,6 +28,9 @@ class cme_db_log {
 	
 		public function cme_log_insert_db ( $mstype, $content, $object ) {
 
+			var_dump('Entra al Log Error');
+			var_dump( $object ) ;
+
 			if ( !$this->debug_enabled ) return ; 
 
 			$form = $this->form  ;
