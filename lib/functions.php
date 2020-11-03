@@ -136,15 +136,14 @@ function wpcf7_cm_add_campaignmonitor($args) {
 
   //$tmp = wpcf7_mce_validate_api_key( $mceapi,$logfileEnabled,'cf7_cm_'.$mce_txcomodin );
 	$apivalid = ( isset( $cf7_cm['api-validation'] )   ) ? $cf7_cm['api-validation'] : null ;
-	$apivalid = 1;
+	
 	
 	//$tmp = wpcf7_mce_listasasociadas( $mceapi,$logfileEnabled,'cf7_cm_'.$mce_txcomodin,$apivalid );
 	$listdata = ( isset( $cf7_cm['lisdata'] )   ) ? $cf7_cm['lisdata'] : null ;
 
-	/*echo ('<pre>') ;
-		var_dump ( $listdata ) ;
-	echo ('</pre>');*/
-	
+
+	$cm_valid = '<span class="cmm valid"><span class="dashicons dashicons-yes"></span>API Key</span>';
+  	$cm_invalid = '<span class="cmm invalid"><span class="dashicons dashicons-no"></span>API Key</span>';
 	
 	
   include SPARTAN_CME_PLUGIN_DIR . '/lib/view.php';
@@ -166,7 +165,24 @@ function resetlogfile_cm() {
 function wpcf7_cm_save_campaignmonitor($args) {
 
 	if(!empty($_POST)){
-		update_option( 'cf7_cm_'.$args->id(), $_POST['wpcf7-campaignmonitor'] );
+
+
+		$default = array () ;
+		$cf7_cm = get_option ( 'cf7_cm_'.$args->id(), $default  ) ;
+
+		$apivalid = ( isset( $cf7_cm['api-validation'] ) ) ? $cf7_cm['api-validation'] : 0   ;
+		$listdata = ( isset( $cf7_cm['lisdata'] ) ) ? $cf7_cm['lisdata'] : 0   ;
+
+		$globalarray = $_POST['wpcf7-campaignmonitor'] ;
+
+		if ( !isset( $_POST['wpcf7-campaignmonitor']['api-validation'] ) )
+				$globalarray += array ('api-validation' => $apivalid  ) ;
+
+		if ( !isset( $_POST['wpcf7-campaignmonitor']['lisdata'] )  ) {
+				$globalarray += array ('lisdata' => $listdata  ) ;
+		}
+
+		update_option( 'cf7_cm_'.$args->id(), $globalarray );
 	}
 }
 add_action( 'wpcf7_after_save', 'wpcf7_cm_save_campaignmonitor' );

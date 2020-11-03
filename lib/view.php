@@ -70,8 +70,9 @@ function cme_panel_gen ($apivalid,$listdata,$cf7_cm,$listatags,$cme_txcomodin) {
 
 
 ?> 
-<h2>Cmpgn Monitor <span class="mc-code"><?php echo SPARTAN_CME_VERSION . '.' . ini_get( 'allow_url_fopen' ) . '.' . ( function_exists( 'curl_init' ) ? '1' : '0' ) . '.' . WPCF7_VERSION . '.' . get_bloginfo( 'version' ) . '.' . PHP_VERSION . '.' . $wpdb->db_version() ?></span></h2>
-
+<div id="cm_apivalid" >
+    <h2>Cmpgn Monitor <?php echo isset( $apivalid ) && '1' == $apivalid ? $cm_valid : $cm_invalid ; ?> <span class="mc-code"><?php echo SPARTAN_CME_VERSION . '.' . ini_get( 'allow_url_fopen' ) . '.' . ( function_exists( 'curl_init' ) ? '1' : '0' ) . '.' . WPCF7_VERSION . '.' . get_bloginfo( 'version' ) . '.' . PHP_VERSION . '.' . $wpdb->db_version() ?></span></h2>
+</div>
 <div class="cme-main-fields">
 
   

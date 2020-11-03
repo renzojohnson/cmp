@@ -36,13 +36,13 @@ function wpcf7_cme_loadlistas() {
   unset( $tmppost['api'],$tmppost['api-validation'],$tmppost['lisdata'] );
 
 	//$tmp = wpcf7_cme_validate_api_key( $cmeapi,$logfileEnabled,$cme_idformxx );
-
-	//$apivalid = $tmp['api-validation'];
-	$apivalid = 1 ;  //luego borrar
-
+	$apivalid = 0;
+	$apivalid = $tmppost['api-validation'];
+	
 	//$tmppost = $tmppost + $tmp ;
 
 	$tmp = wpcf7_cme_listasasociadas( $cmeapi,$logfileEnabled,$cme_idformxx,$apivalid );
+	
 	
 		
 	$listdata = $tmp['lisdata'];
@@ -50,7 +50,7 @@ function wpcf7_cme_loadlistas() {
 
   	$listatags = $cf7_cm['listatags'] ;
 
-  	$tmppost = $tmppost + array( 'api' => $cmeapi );
+  	$tmppost = $tmppost + array( 'api' => $cmeapi,'api-validation'=> $apivalid  );
 
 	update_option( $cme_idformxx,$tmppost );
 
@@ -67,7 +67,8 @@ function cme_html_panel_listmail( $apivalid, $listdata, $cf7_cm ) {
   $i = 0 ;
   //if ( !isset ( $listdata['lists'] ) ) return ;
 
-  $count = !is_null ( $listdata ) ? count ( $listdata['lists'] ) : 0 ;
+  $count = 0 ;	
+  $count = !is_null ( $listdata ) && is_array( $listdata ) ? count ( $listdata['lists'] ) : 0 ;
 
   //if ( $count == 0 ) return ;
 	
@@ -144,96 +145,6 @@ $listatags =   $r ;
         <?php
 }
 
-function wpcf7_cme_validate_api_key( $input, $logfileEnabled, $idform = '' ) {
-	$sRpta = 0;
-
-	try {
-
-		
-		$cme_db_log = new cme_db_log( 'cme_db_issues',  $logfileEnabled,'api',$idform );
-
-
-    if ( !isset( $input ) or trim ( $input ) =="" ) {
-       $tmp = array( 'api-validation' => 0 );
-			 
-			 $cme_db_log->cme_log_insert_db(4, 'API Key Response : Empty field for API Key', ''  );
-
-       return $tmp ;
-    }
-
-    // You just want to count the letter a
-    $api = ( isset( $input )  ) ? $input : "XXXX-XXXX" ;
-
-    $acount= substr_count($input,"-");
-
-    if ( $acount == 0  ) {
-
-       $tmp = array( 'api-validation' => 0 );
-			 $cme_db_log->cme_log_insert_db(4, 'API Key Response : ', 'Invalid format for API Key'  ) ;
-
-       return $tmp ;
-
-    }
-
-
-    $dc    = explode("-",$api);
-    $url   = "https://anystring:$dc[0]@$dc[1].api.mailchimp.com/3.0/ping";
-
-    $vc_date = date( 'Md.H:i' );
-    $vc_user_agent = '.' . SPARTAN_CME_VERSION . '.' . strtolower( $vc_date );
-    $vc_headers = array( "Content-Type" => "application/json" ) ;
-
-    $opts = array(
-                    'headers' => $vc_headers,
-                    'user-agent' => 'mce-r' . $vc_user_agent
-                  );
-
-    $resp = wp_remote_get( $url, $opts );
-
-    if ( is_wp_error ( $resp ) ) {
-
-        $resputa = json_encode ( $resp ) ;
-        $tmp = array( 'api-validation' => 0 );
-
-				$cme_db_log->cme_log_insert_db(4, 'API Key Response :', $resp  ) ;
-
-        return $tmp;
-    }
-
-    $resputa = json_encode ( $resp ) ;
-    $resultbody = wp_remote_retrieve_body( $resp );
-
-    $validate_api_key_response = json_decode( $resultbody, True );
-
-    if ( isset ( $validate_api_key_response["status"] ) ) {
-        if ( $validate_api_key_response["status"] >=400  ) {
-            $tmp = array( 'api-validation' => 0 );
-
-						$cme_db_log->cme_log_insert_db(4, 'API Key Response :', $resp  ) ;
-
-            return $tmp;
-        }
-    }
-		$sRpta = 1;
-		$tmp = array( 'api-validation' => 1 );
-
-		$cme_db_log->cme_log_insert_db(1, 'API Key Response :', $resultbody  ) ;
-
-		return $tmp;
-
-	} catch ( Exception $e ) {
-
-		$tmp = array( 'api-validation' => 0 );
-
-
-		$cme_db_log = new cme_db_log( 'cme_db_issues',  $logfileEnabled,'api',$idform );
-		$cme_db_log->cme_log_insert_db(1, 'API Key Response - Result: error Try Catch ' . $e->getMessage()  , $e  ) ;
-
-		return $tmp;
-	}
-
-}
-
 function wpcf7_cme_getcodclient( $apikey, $logfileEnabled, $idform = '',$apivalid ) {
 	try {
 		
@@ -274,26 +185,27 @@ function wpcf7_cme_getcodclient( $apikey, $logfileEnabled, $idform = '',$apivali
 	
 	
 }
-function wpcf7_cme_listasasociadas( $apikey, $logfileEnabled, $idform = '',$apivalid ) {
+function wpcf7_cme_listasasociadas( $apikey, $logfileEnabled, $idform = '',&$apivalid ) {
 	try {
 		
 		$cod_cli = wpcf7_cme_getcodclient ( $apikey, $logfileEnabled, $idform = '',$apivalid ) ;
 		
 		$cme_db_log = new cme_db_log('cme_db_issues', $logfileEnabled,'api',$idform );
+		// var_dump( ' $apivalid : ' . $apivalid ) ;
 
-		 if ( $apivalid == 0    ) {
-				//Poner un mensaje no repusimos listas
-				$list_data 	= array(
-					'id'  => 0,
-					'name' => 'sin lista',
-					) ;
+		//  if ( $apivalid == 0    ) {
+		// 		//Poner un mensaje no repusimos listas
+		// 		$list_data 	= array(
+		// 			'id'  => 0,
+		// 			'name' => 'sin lista',
+		// 			) ;
 
-				 $tmp = array( 'lisdata' => array('lists' => $list_data ));
+		// 		 $tmp = array( 'lisdata' => array('lists' => $list_data ));
 
-				 $cme_db_log->cme_log_insert_db(4, 'List ID - Response:'  , 'No Lists, Invalid API key: ' . $apikey  ) ;
+		// 		 $cme_db_log->cme_log_insert_db(4, 'List ID - Response:'  , 'No Lists, Invalid API key: ' . $apikey  ) ;
 
-				 return $tmp ;
-			}
+		// 		 return $tmp ;
+		// 	}
 
 			$api   = $apikey;
 			$dc    = explode("-",$api);
@@ -323,13 +235,22 @@ function wpcf7_cme_listasasociadas( $apikey, $logfileEnabled, $idform = '',$apiv
 			}
 			$resultbody = wp_remote_retrieve_body( $resultsend ); 		
 			$resp = json_decode( $resultbody, True );
-						
-		    echo ('<pre>') ;
-				var_dump ( $resp  ) ;
-			echo ('</pre>') ;	
+				
 
 			$tmp = array( 'lisdata' => array('lists' => $resp ) );
+		
+			$apivalid = 0;
+			if ( isset( $resp['Code'] ) )
+				if ( $resp['Code'] === 200  ) {
+					$apivalid = 1;
+				} 
+				else {
+					$apivalid = 0;
+				}
+			else	
+				$apivalid = 1;
 
+		
 			$cme_db_log->cme_log_insert_db(1, 'List ID - Response:' , $resp  ) ;
 
 			return $tmp;
